@@ -2,6 +2,7 @@ package com.example.lab_week_05
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 class MainActivity : AppCompatActivity() {
 
     private lateinit var apiResponseView: TextView
+    private lateinit var imageResultView: ImageView
+    private val imageLoader: ImageLoader by lazy { GlideLoader(this) }
 
     private val retrofit by lazy {
         Retrofit.Builder()
@@ -39,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         apiResponseView = findViewById(R.id.api_response)
+        imageResultView = findViewById(R.id.image_result)
 
         getCatImageResponse()
     }
@@ -56,7 +60,14 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl ?: "No URL"
+                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
+
+                    if (firstImage.isNotBlank()) {
+                        imageLoader.loadImage(firstImage, imageResultView)
+                    } else {
+                        Log.d(MAIN_ACTIVITY, "Missing image URL")
+                    }
+
                     apiResponseView.text =
                         getString(R.string.image_placeholder, firstImage)
                 } else {
