@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         apiResponseView = findViewById(R.id.api_response)
         imageResultView = findViewById(R.id.image_result)
 
+
         getCatImageResponse()
     }
 
@@ -60,16 +61,22 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
+                    val firstImage = image?.firstOrNull()
 
-                    if (firstImage.isNotBlank()) {
-                        imageLoader.loadImage(firstImage, imageResultView)
+                    // ✅ Ambil URL gambar
+                    val imageUrl = firstImage?.imageUrl.orEmpty()
+
+                    // ✅ Ambil nama breed kalau ada, kalau kosong tampilkan Unknown
+                    val breedName = firstImage?.breeds?.firstOrNull()?.name ?: "Unknown"
+
+                    if (imageUrl.isNotBlank()) {
+                        imageLoader.loadImage(imageUrl, imageResultView)
                     } else {
                         Log.d(MAIN_ACTIVITY, "Missing image URL")
                     }
 
-                    apiResponseView.text =
-                        getString(R.string.image_placeholder, firstImage)
+
+                    apiResponseView.text = getString(R.string.breed_placeholder, breedName)
                 } else {
                     Log.e(
                         MAIN_ACTIVITY,
